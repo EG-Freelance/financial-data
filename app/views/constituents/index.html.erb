@@ -1,0 +1,25 @@
+<p id="notice"><%= notice %></p>
+
+<h1>Listing Constituents</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @constituents.each do |constituent| %>
+      <tr>
+        <td><%= link_to 'Show', constituent %></td>
+        <td><%= link_to 'Edit', edit_constituent_path(constituent) %></td>
+        <td><%= link_to 'Destroy', constituent, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Constituent', new_constituent_path %>
