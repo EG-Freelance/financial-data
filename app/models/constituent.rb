@@ -71,7 +71,7 @@ class Constituent < ActiveRecord::Base
       if !a['a_ticker'].blank?
         # remove trailing inc, corp, ltc, and plc
         name = a['a_sec'].gsub(/\,?\s(?:corp\.?|ltd\.?|inc\.?|plc\.?)\z/i, "")
-        if Constituent.exists?(['sym = ? AND added > ? AND added < ?', a['a_ticker'], date - 7.days, date + 7.days])
+        if Constituent.exists?(['sym = ? AND added > ? AND added < ?', a['a_ticker'], date - 7.days, date + 7.days]) # search for existing constituents with this ticker added within a week of this listing
           puts "ignore..."
         else
           if Rails.env == "development"
@@ -89,9 +89,9 @@ class Constituent < ActiveRecord::Base
       end
       
       if !a['r_ticker'].blank?
-        if Rails.env == "development"
         # remove trailing inc, corp, ltc, and plc
         name = a['r_sec'].gsub(/\,?\s(?:corp\.?|ltd\.?|inc\.?|plc\.?)\z/i, "")
+        if Rails.env == "development"
           rm_constituent = Constituent.where("(sym = ? AND name LIKE ?) OR name = ?",a['r_ticker'], "#{name}%", name).first_or_initialize
         else
           rm_constituent = Constituent.where("(sym = ? AND name ~* ?) OR name = ?",a['r_ticker'], "#{name}.*", name).first_or_initialize
