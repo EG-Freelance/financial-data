@@ -144,10 +144,35 @@ class Constituent < ActiveRecord::Base
     
     # KFT
     Constituent.find_by(sym: "KFT").try(:destroy) # just destroy, there is no removal date
+    
+    # AGN
+    agn = Constituent.find_by(sym: "AGN")
+    if agn.removed == Date.new(2015,3,23)
+      agn.update(removed: nil)
+    end    
+    
+    # JCI
+    jci = Constituent.find_by(sym: "JCI")
+    if jci.removed == Date.new(2016,9,6)
+      jci.update(removed: nil)
+    end
+    
+    # CB
+    cb = Constituent.find_by(sym: "CB")
+    if cb.removed == Date.new(2016,1,19)
+      cb.update(removed: nil)
+    end
+    
+    # AMD
+    ### Nothing to do, but be aware the AMD was removed in 2013 before being re-added in 2016
   end
+  
 end
 
 ### SPECIAL CASES ###
+# CB not actually removed
+# JCI not actually removed
+# AGN not actually removed
 # KORS => CPRI
 # Q => IQV
 # GGP => GGP (different name)
