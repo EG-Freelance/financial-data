@@ -33,7 +33,8 @@ class SpMarketCap < ActiveRecord::Base
           puts "Couldn't parse for #{date.strftime("%Y-%m-%d")}..."
           SpMarketCap.create(date: date, mkt_cap: 0)
         else
-          SpMarketCap.create(date: date, mkt_cap: mkt_cap[1])
+          # scrub commas out of mkt_cap and save
+          SpMarketCap.create(date: date, mkt_cap: mkt_cap[1].gsub(",",""))
         end
       end
     end
@@ -56,6 +57,7 @@ class SpMarketCap < ActiveRecord::Base
         puts "Couldn't parse for #{date.strftime("%Y-%m-%d")}"
         SpMarketCap.create(date: date, mkt_cap: 0)
       else
+        # scrub commas out of mkt_cap and save
         SpMarketCap.create(date: date, mkt_cap: mkt_cap[1].gsub(",",""))
       end
     end
