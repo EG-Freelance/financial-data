@@ -35,7 +35,7 @@ class SpMarketCap < ActiveRecord::Base
     # start with end months
     search_dates = (start_date..(Date.today - 1.day)).map { |date| [(Date.today - 1.day), date.end_of_month].min }.uniq
     search_dates.each do |d|
-      puts "Getting market cap for #{date.strftime("%F")}..."
+      puts "Getting market cap for #{d.strftime("%F")}..."
       
       # process data
       csv, date = get_csv_data(d)
