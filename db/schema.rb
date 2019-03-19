@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20190312150916) do
+ActiveRecord::Schema.define(version: 20190319155325) do
 
   create_table "constituents", force: :cascade do |t|
     t.date     "added"
@@ -26,6 +26,13 @@ ActiveRecord::Schema.define(version: 20190312150916) do
   create_table "edgars", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "sp_market_caps", force: :cascade do |t|
+    t.date     "date"
+    t.integer  "mkt_cap",    limit: 8
+    t.datetime "created_at",           null: false
+    t.datetime "updated_at",           null: false
   end
 
 end
