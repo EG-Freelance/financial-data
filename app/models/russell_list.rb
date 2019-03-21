@@ -1,6 +1,6 @@
-class SpMarketCap < ActiveRecord::Base
-  def self.get_mkt_caps
-    start_date = SpMarketCap.all.map(&:date).max || Date.new(2006,9,29)
+class RussellList < ActiveRecord::Base
+  def self.get_r2000_sym
+    start_date = RussellList.all.map(&:date).max || Date.new(2006,9,29)
 
     # start with end months
     search_dates = (start_date..(Date.today - 1.day)).map { |date| [(Date.today - 1.day), date.end_of_month].min }.uniq
@@ -8,21 +8,31 @@ class SpMarketCap < ActiveRecord::Base
       puts "Getting market cap for #{d.strftime("%F")}..."
       
       # process data
-      csv, date = SpMarketCap.get_mc_csv_data(d)
-      mkt_cap = csv.find { |row| row[0] == "Total Net Assets"}
+      csv, date = RussellList.get_rsym_csv_data(d)
       
+      header = csv[10]
+      syms = csv[11..-2]
+      
+      sym_ix = header.index("Ticker")
+      sect_ix = header.index("Sector")
+      val_ix = header.index("Notional Value")
+      
+      syms.delete_if { |s| ["Financials", "Energy"].include?(s[sect_ix]) || s[sym_ix] == "-" || s[val_ix] < 1.0 }
+      
+      sym_str = syms.map { |s| s[0].gsub(" ", ".") }.join("; ")
+
       # create entry for this month
-      if mkt_cap.blank?
+      if sym_str.blank?
         puts "Couldn't parse for #{date.strftime("%Y-%m-%d")}..."
-        SpMarketCap.create(date: date, mkt_cap: 0)
+        RussellList.create(date: date, syms: "")
       else
         # scrub commas out of mkt_cap and save
-        SpMarketCap.create(date: date, mkt_cap: mkt_cap[1].gsub(",",""))
+        RussellList.create(date: date, syms: sym_str)
       end
     end
   end
   
-  def self.get_mc_csv_data(date)
+  def self.get_rsym_csv_data(date)
     require 'open-uri'
     require 'csv'
     
@@ -31,7 +41,7 @@ class SpMarketCap < ActiveRecord::Base
     
     while i < 10 && as_of.blank?
       # loop back through dates until date includes data (stop at 10 loops to make sure to avoid infinite loops)
-      base_url = "https://www.blackrock.com/us/individual/products/239726/ishares-core-sp-500-etf/1464253357814.ajax?fileType=csv&fileName=IVV_holdings&dataType=fund&asOfDate="
+      base_url = "https://www.blackrock.com/us/individual/products/239714/ishares-russell-3000-etf/1464253357814.ajax?fileType=csv&fileName=IWM_holdings&dataType=fund&asOfDate="
       
       # set url
       d = date.strftime("%Y%m%d")
@@ -53,25 +63,25 @@ class SpMarketCap < ActiveRecord::Base
     return csv, date
   end
   
-  def self.get_mkt_caps_date(date)
+  def self.get_r2000_sym_date(date)
     require 'open-uri'
     require 'csv'
     
-    url = "https://www.blackrock.com/us/individual/products/239726/ishares-core-sp-500-etf/1464253357814.ajax?fileType=csv&fileName=IVV_holdings&dataType=fund&asOfDate=#{date.strftime("%Y%m%d")}"
+    url = "https://www.blackrock.com/us/individual/products/239714/ishares-russell-3000-etf/1464253357814.ajax?fileType=csv&fileName=IWM_holdings&dataType=fund&asOfDate=#{date.strftime("%Y%m%d")}"
     url_data = open(url).read()
     csv = CSV.parse(url_data)
     date_check = csv.find { |row| row[0] == "Fund Holdings as of" }[1].blank?
     if date_check
-      prev = SpMarketCap.find_by(date: date - 1.day)
-      SpMarketCap.create(date: date, mkt_cap: prev.mkt_cap)
+      prev = RussellList.find_by(date: date - 1.day)
+      RussellList.create(date: date, mkt_cap: prev.mkt_cap)
     else
       mkt_cap = csv.find { |row| row[0] == "Total Net Assets"}
       if mkt_cap.blank?
         puts "Couldn't parse for #{date.strftime("%Y-%m-%d")}"
-        SpMarketCap.create(date: date, mkt_cap: 0)
+        RussellList.create(date: date, mkt_cap: 0)
       else
         # scrub commas out of mkt_cap and save
-        SpMarketCap.create(date: date, mkt_cap: mkt_cap[1].gsub(",",""))
+        RussellList.create(date: date, mkt_cap: mkt_cap[1].gsub(",",""))
       end
     end
   end

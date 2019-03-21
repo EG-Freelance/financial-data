@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20190319155325) do
+ActiveRecord::Schema.define(version: 20190321134512) do
 
   create_table "constituents", force: :cascade do |t|
     t.date     "added"
@@ -24,6 +24,12 @@ ActiveRecord::Schema.define(version: 20190319155325) do
   end
 
   create_table "edgars", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "russell_lists", force: :cascade do |t|
+    t.text     "syms"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
