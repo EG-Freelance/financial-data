@@ -65,6 +65,7 @@ class RussellList < ActiveRecord::Base
           puts "Trying with proxy #{retries + 1}..."
           retries += 1
           proxy = manager.pop!
+          retry
         else
           puts "Failed to pull."
           return false
