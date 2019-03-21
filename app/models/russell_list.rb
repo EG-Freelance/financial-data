@@ -37,6 +37,9 @@ class RussellList < ActiveRecord::Base
     require 'open-uri'
     require 'csv'
     
+    # set proxies in case of need for use
+    manager = ProxyFetcher::Manager.new
+    
     i = 0
     as_of = ""
     
@@ -49,7 +52,24 @@ class RussellList < ActiveRecord::Base
       url = base_url + d
       
       # get csv data
-      url_data = open(url).read()
+      retries = 0
+      begin
+        if retries == 0
+          url_data = open(url).read()
+        else
+          url_data = open(url, proxy: URI.parse("http://" + proxy.addr + ":" + proxy.port.to_s))
+        end
+      rescue
+        puts "Failed on try ##{retries + 1}"
+        if retries <= 20
+          puts "Trying with proxy #{retries + 1}..."
+          retries += 1
+          proxy = manager.pop!
+        else
+          puts "Failed to pull."
+          return false
+        end
+      end
       csv = CSV.parse(url_data)
       
       as_of = csv.find { |row| row[0] == "Fund Holdings as of" }[1]
