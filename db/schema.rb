@@ -30,6 +30,7 @@ ActiveRecord::Schema.define(version: 20190321134512) do
 
   create_table "russell_lists", force: :cascade do |t|
     t.text     "syms"
+    t.date     "date"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
