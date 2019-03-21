@@ -15,12 +15,12 @@ class RussellList < ActiveRecord::Base
       
       sym_ix = header.index("Ticker")
       sect_ix = header.index("Sector")
-      val_ix = header.index("Notional Value")
+      exch_ix = header.index("Exchange")
       ast_ix = header.index("Asset Class")
       
-      syms.delete_if { |s| ["Financials", "Energy"].include?(s[sect_ix]) || s[sym_ix] == "-" || s[val_ix].to_f < 1.0 || s[ast_ix] != "Equity" }
+      syms.delete_if { |s| ["Financials", "Energy"].include?(s[sect_ix]) || s[sym_ix] == "-" || s[ast_ix] != "Equity" || s[exch_ix] == "-" }
       
-      sym_str = syms.map { |s| s[0].gsub(" ", ".") }.join("; ")
+      sym_str = syms.map { |s| s[0].gsub(" ", ".").gsub("*","") }.join("; ")
 
       # create entry for this month
       if sym_str.blank?
@@ -56,6 +56,7 @@ class RussellList < ActiveRecord::Base
       
       # increment i and date
       if as_of.blank? 
+        puts "going back 1 day..."
         date = date - 1.day
         i += 1
       end
