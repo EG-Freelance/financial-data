@@ -16,8 +16,9 @@ class RussellList < ActiveRecord::Base
       sym_ix = header.index("Ticker")
       sect_ix = header.index("Sector")
       val_ix = header.index("Notional Value")
+      ast_ix = header.index("Asset Class")
       
-      syms.delete_if { |s| ["Financials", "Energy"].include?(s[sect_ix]) || s[sym_ix] == "-" || s[val_ix] < 1.0 }
+      syms.delete_if { |s| ["Financials", "Energy"].include?(s[sect_ix]) || s[sym_ix] == "-" || s[val_ix].to_f < 1.0 || s[ast_ix] != "Equity" }
       
       sym_str = syms.map { |s| s[0].gsub(" ", ".") }.join("; ")
 
